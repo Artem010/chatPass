@@ -13,10 +13,6 @@
       const userColor = "<%= color %>"
   </script>
 <body>
- <div class="helloUser">
-
- </div>
-
 
   <div class="container">
     <div id="mainContainer" class="row">
@@ -24,7 +20,7 @@
         <nav class="messeges"></nav>
 
         <form id="messageForm">
-          <input autocomplete="off" placeholder="Your messege" type="te" class="inputMsg form-control" >
+          <input autocomplete="off" focus placeholder="Your messege" type="te" class="inputMsg form-control" >
           <button type="submit" class="btn btn-danger" value="Send">Send</button>
         </form>
 
@@ -45,6 +41,7 @@
     function scrollButtom() {
       $(".messeges").stop().animate({ scrollTop: $(".messeges")[0].scrollHeight}, 1000);
     }
+
     const socket = io.connect()
     socket.emit('pushFiveMsgs')
 

@@ -48,7 +48,7 @@ app.get('/main.css', (req, res) => {
 
 app.get('/', checkAuthenticated, (req, res) => {
   res.render('index.ejs', { name: req.user.name, color: req.user.color })
-  console.log(users);
+  // console.log(users);
 })
 
 app.get('/login', checkNotAuthenticated, (req, res) => {
@@ -67,24 +67,23 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 })
 
 app.post('/register', checkNotAuthenticated, async (req, res) => {
-//   try {
+  try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
 
     function random (){return Math.floor(Math.random() * (255- 0) + 0)}
     color = 'rgba('+random()+', '+random()+', '+random()+', 0.5)'
-    console.log(color);
+    // console.log(color);
     let sqlSELECT = "SELECT * FROM users WHERE login=? ";
     connection.query(sqlSELECT, req.body.login, (err, result) => {
       if(result == ''){
         regUserDB(req.body.login, req.body.name, hashedPassword, color);
-        console.log('Ok');
+        // console.log('Ok');
       }else console.log('error reg');
     })
     res.redirect('/login')
-//   } 
-//   catch {
-//     res.redirect('/register')
-//   }
+  } catch {
+    res.redirect('/register')
+  }
 })
 
 app.get('/logout', (req, res) => {
@@ -160,7 +159,7 @@ function addMsgDB(name, msg) {
   let sqlSELECT = "SELECT * FROM users WHERE name=?";
   connection.query(sqlSELECT, name, function (err, result) {
     if (err) return console.log('ОШИБККА: ',err);
-    console.log('res=',result);
+
     id = result[0].id;
     color = result[0].color;
 
@@ -189,6 +188,7 @@ function findUserDB() {
       })
     });
 
-    console.log(users);
+    // console.log(users);
+
   })
 }
