@@ -67,7 +67,7 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 })
 
 app.post('/register', checkNotAuthenticated, async (req, res) => {
-  try {
+//   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
 
     function random (){return Math.floor(Math.random() * (255- 0) + 0)}
@@ -81,7 +81,7 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
       }else console.log('error reg');
     })
     res.redirect('/login')
-  } 
+//   } 
 //   catch {
 //     res.redirect('/register')
 //   }
