@@ -83,7 +83,7 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
     res.redirect('/login')
   // } catch {
   //   res.redirect('/register')
-  // }
+  // } 
 })
 
 app.get('/logout', (req, res) => {
