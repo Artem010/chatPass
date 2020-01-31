@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="main.css">
+  <title>Document</title>
+</head>
+  <script type="text/javascript">
+      const userName = "<%= name %>"
+      const userColor = "<%= color %>"
+  </script>
+<body>
+ <div class="helloUser">
+
+ </div>
+
+
+  <div class="container">
+    <div id="mainContainer" class="row">
+      <div class="col-12">
+        <nav class="messeges"></nav>
+
+        <form id="messageForm">
+          <input autocomplete="off" placeholder="Your messege" type="te" class="inputMsg form-control" >
+          <button type="submit" class="btn btn-danger" value="Send">Send</button>
+        </form>
+
+        <b>Hi <%= name %></b>
+        <a href="/logout"> LogOut</a>
+      </div>
+
+    </div>
+  </div>
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="__dirname/../socket.io/socket.io.js"></script>
+
+
+
+  <script>
+    function scrollButtom() {
+      $(".messeges").stop().animate({ scrollTop: $(".messeges")[0].scrollHeight}, 1000);
+    }
+    const socket = io.connect()
+    socket.emit('pushFiveMsgs')
+
+    $('#messageForm').submit(e => {
+      e.preventDefault()
+      let msgInput = $('.inputMsg').val()
+      if(msgInput != ''){
+        socket.emit('newMessege', {name:userName, msg:$('.inputMsg').val(), color:userColor})
+        $('.inputMsg').val('')
+      }
+    })
+
+    socket.on('PFM', data =>{
+      data.forEach(function (entery) {
+        $('.messeges').append("<p style='background-color:"+entery.color+"' class='alert'><b>"+entery.name+"</b>: "+entery.msg+"</p>");
+      })
+      scrollButtom()
+    })
+    socket.on('Addmessage', data =>{
+      // console.log('message: ' + msg);
+      $('.messeges').append("<div style='background-color:"+data.color+"' class='alert'><b>"+data.name+"</b>: "+data.msg+"</div>")
+      scrollButtom()
+    })
+  </script>
+</body>
+</html>
