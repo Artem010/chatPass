@@ -67,7 +67,7 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 })
 
 app.post('/register', checkNotAuthenticated, async (req, res) => {
-  // try {
+  try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
 
     function random (){return Math.floor(Math.random() * (255- 0) + 0)}
@@ -81,9 +81,9 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
       }else console.log('error reg');
     })
     res.redirect('/login')
-  // } catch {
-  //   res.redirect('/register')
-  // }
+  } catch {
+    res.redirect('/register')
+  }
 })
 
 app.get('/logout', (req, res) => {
@@ -181,14 +181,14 @@ function findUserDB() {
       // console.log(ite);
       users.push({
         id: item.id,
-        name: item.name,
         login: item.login,
+        name: item.name,
         password:item.password,
         color: item.color
       })
     });
 
-    // console.log(users);
+    console.log(users);
 
   })
 }
