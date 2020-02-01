@@ -66,12 +66,12 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 })
 
 app.post('/register', checkNotAuthenticated, async (req, res) => {
+  try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
 
     function random (){return Math.floor(Math.random() * (255- 0) + 0)}
     color = 'rgba('+random()+', '+random()+', '+random()+', 0.5)'
     // console.log(color);
-    try {
       let sqlSELECT = "SELECT * FROM users WHERE login=? ";
       connection.query(sqlSELECT, req.body.login, (err, result) => {
         if(result == ''){
@@ -80,8 +80,8 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
         }else console.log('error reg');
       })
       res.redirect('/login')
-    } catch (err) {
-      res.redirect('/register')
+  } catch (err) {
+    res.redirect('/register')
   }
 })
 
@@ -132,8 +132,8 @@ io.on('connection', socket => {
     let user = online.find(user => user.socket == socket)
     if(user){
       online.splice(online.indexOf(user),1)
-      io.sockets.emit('connectDisconnectOnline', {name:user.name, value:'disconnect', online:online.length})
-      console.log('onlineConnectLength',online.length)
+      io.sockets.emit('connectDisconnectOnline', {name:user.name, value:'disconnected', online:online.length})
+      console.log('onlineDisconnectLength',online.length)
 
     }
     console.log('user disconnected')
@@ -144,15 +144,20 @@ io.on('connection', socket => {
     io.sockets.emit('Addmessage', {color:data.color, name:data.name, msg:data.msg})
   })
 
-  socket.on('settings', data =>{
+  socket.on('startSettings', data =>{
 
     online.push({
       socket:socket,
       name:data.name
     })
-    io.sockets.emit('connectDisconnectOnline', {name:data.name, value:'connected', online:online.length})
+    let usersOn = []
+    for (let i = 0; i < online.length; i++) {
+      usersOn.push(online[i].name)
+    }
+    io.sockets.emit('connectDisconnectOnline', {name:data.name, value:'connected', online:usersOn})
 
     console.log('onlineConnectLength',online.length);
+
     let m = [];
     let sqlSELECT = "SELECT * FROM messeges ORDER BY id DESC LIMIT 15";
     connection.query(sqlSELECT, function (err, result) {

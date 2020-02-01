@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://unpkg.com/popper.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  <script src="__dirname/../socket.io/socket.io.js"></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
   <link rel="stylesheet" href="main.css">
   <title>Chat by Artem</title>
@@ -26,27 +30,33 @@
 
         <b>Hi <%= name %></b>
         <a href="/logout"> LogOut</a>
-        <span class="online">
+        <a class="online" href="#" data-container="body" data-toggle="popover" data-placement="top" data-content="">
           Online:<b></b>
-        </span>
+        </a>
       </div>
 
     </div>
   </div>
 
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script src="__dirname/../socket.io/socket.io.js"></script>
-
 
 
   <script>
+  $(function () {
     function scrollButtom() {
       $(".messeges").stop().animate({ scrollTop: $(".messeges")[0].scrollHeight}, 1000);
     }
 
+
+    $('.online').popover({
+      container: 'body',
+      trigger: 'focus'
+    })
+
+
+
     const socket = io.connect()
-    socket.emit('settings', {name:userName})
+    socket.emit('startSettings', {name:userName})
 
     $('#messageForm').submit(e => {
       e.preventDefault()
@@ -61,6 +71,7 @@
       data.forEach(function (entery) {
         $('.messeges').append("<p style='background-color:"+entery.color+"' class='alert'><b>"+entery.name+"</b>: "+entery.msg+"</p>");
       })
+
       scrollButtom()
     })
     socket.on('Addmessage', data =>{
@@ -71,12 +82,28 @@
 
     socket.on('connectDisconnectOnline', data => {
 
-        $('.online b').html(data.online)
+        let online = data.online
+
+        $('.online b').html(data.online.length)
+
+
+          $('.online').attr('data-content', ()=>{
+              let dataContent =''
+              for (let i = 0; i < online.length; i++) {
+                if(i == online.length -1){
+                  dataContent += (online[i])
+                }else dataContent += (online[i] + ', ')
+              }
+              return dataContent
+            })
+
+
         console.log(data.online)
 
       $('.messeges').append("<div class='alert'><b>"+data.name+"</b> "+ data.value+"</div>")
       scrollButtom()
     })
+  })
   </script>
 </body>
 </html>
