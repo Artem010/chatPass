@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
   <link rel="stylesheet" href="main.css">
-  <title>Document</title>
+  <title>Chat by Artem</title>
 </head>
   <script type="text/javascript">
       const userName = "<%= name %>"
@@ -26,6 +26,9 @@
 
         <b>Hi <%= name %></b>
         <a href="/logout"> LogOut</a>
+        <span class="online">
+          Online:<b></b>
+        </span>
       </div>
 
     </div>
@@ -43,7 +46,7 @@
     }
 
     const socket = io.connect()
-    socket.emit('pushFiveMsgs')
+    socket.emit('settings', {name:userName})
 
     $('#messageForm').submit(e => {
       e.preventDefault()
@@ -63,6 +66,15 @@
     socket.on('Addmessage', data =>{
       // console.log('message: ' + msg);
       $('.messeges').append("<div style='background-color:"+data.color+"' class='alert'><b>"+data.name+"</b>: "+data.msg+"</div>")
+      scrollButtom()
+    })
+
+    socket.on('connectDisconnectOnline', data => {
+
+        $('.online b').html(data.online)
+        console.log(data.online)
+
+      $('.messeges').append("<div class='alert'><b>"+data.name+"</b> "+ data.value+"</div>")
       scrollButtom()
     })
   </script>

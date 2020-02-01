@@ -48,15 +48,14 @@ app.get('/main.css', (req, res) => {
 
 app.get('/', checkAuthenticated, (req, res) => {
   res.render('index.ejs', { name: req.user.name, color: req.user.color })
-  // console.log(users);
 })
 
 app.get('/login', checkNotAuthenticated, (req, res) => {
-  findUserDB()
+  // findUserDB()
   res.render('login.ejs')
 })
 
-app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
+app.post('/login', getUser, checkNotAuthenticated, passport.authenticate('local', {
   successRedirect: '/',
   failureRedirect: '/login',
   failureFlash: true
@@ -67,23 +66,23 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 })
 
 app.post('/register', checkNotAuthenticated, async (req, res) => {
-  // try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
 
     function random (){return Math.floor(Math.random() * (255- 0) + 0)}
     color = 'rgba('+random()+', '+random()+', '+random()+', 0.5)'
     // console.log(color);
-    let sqlSELECT = "SELECT * FROM users WHERE login=? ";
-    connection.query(sqlSELECT, req.body.login, (err, result) => {
-      if(result == ''){
-        regUserDB(req.body.login, req.body.name, hashedPassword, color);
-        // console.log('Ok');
-      }else console.log('error reg');
-    })
-    res.redirect('/login')
-  // } catch {
-  //   res.redirect('/register')
-  // }
+    try {
+      let sqlSELECT = "SELECT * FROM users WHERE login=? ";
+      connection.query(sqlSELECT, req.body.login, (err, result) => {
+        if(result == ''){
+          regUserDB(req.body.login, req.body.name, hashedPassword, color);
+          // console.log('Ok');
+        }else console.log('error reg');
+      })
+      res.redirect('/login')
+    } catch {
+      res.redirect('/register')
+  }
 })
 
 app.get('/logout', (req, res) => {
@@ -106,13 +105,37 @@ function checkNotAuthenticated(req, res, next) {
   next()
 }
 
+function getUser(req, res, next) {
+
+  let promise = new Promise((resolve, reject) => {
+    findUserDB(req.body.login, resolve)
+  })
+
+  promise.then(
+    res=>{if(res) return next()},
+    error =>{console.log('error of getUserBD')}
+  )
+
+
+}
+
 server.listen(3000)
 
+let online =[]
 
 io.on('connection', socket => {
+
   console.log("New coonect")
 
+
   socket.on('disconnect', () =>{
+    let user = online.find(user => user.socket == socket)
+    if(user){
+      online.splice(online.indexOf(user),1)
+      io.sockets.emit('connectDisconnectOnline', {name:user.name, value:'disconnect', online:online.length})
+      console.log('onlineConnectLength',online.length)
+
+    }
     console.log('user disconnected')
   })
 
@@ -121,12 +144,19 @@ io.on('connection', socket => {
     io.sockets.emit('Addmessage', {color:data.color, name:data.name, msg:data.msg})
   })
 
-  socket.on('pushFiveMsgs', data =>{
+  socket.on('settings', data =>{
+
+    online.push({
+      socket:socket,
+      name:data.name
+    })
+    io.sockets.emit('connectDisconnectOnline', {name:data.name, value:'connected', online:online.length})
+
+    console.log('onlineConnectLength',online.length);
     let m = [];
     let sqlSELECT = "SELECT * FROM messeges ORDER BY id DESC LIMIT 15";
     connection.query(sqlSELECT, function (err, result) {
       if (err) return console.log('ОШИБККА: ',err);
-
       for (let i = 0; i < result.length; i++) {
         m.unshift({
           msg: result[i].messege,
@@ -134,10 +164,9 @@ io.on('connection', socket => {
           color: result[i].color
         })
       }
-
-      // console.log( m);
       socket.emit('PFM',  m);
     });
+
 
   });
 
@@ -166,29 +195,28 @@ function addMsgDB(name, msg) {
     let sqlINSERT = "INSERT INTO messeges(id_name,name,messege,color) VALUES(?,?,?,?)";
     connection.query(sqlINSERT, [id,name,msg,color], function (err, result) {
       if (err) return console.log('ОШИБККА: ',err);
-      console.log("Added msg");
+      console.log("Added msg by '", name, "'(", Date().toString(), ')');
     });
   });
 
 
 }
 
-function findUserDB() {
-  let sqlSELECT = "SELECT * FROM users";
-  connection.query(sqlSELECT, (err, result) => {
+function findUserDB(login, resolve) {
+  let sqlSELECT = "SELECT * FROM users WHERE login=?";
+  connection.query(sqlSELECT, login, (err, result) => {
 
     result.forEach(item => {
-      // console.log(ite);
-      users.push({
+      users.push ({
         id: item.id,
         login: item.login,
         name: item.name,
         password:item.password,
         color: item.color
       })
+      // user = {id: item.id,login: item.login}
     });
-
-    console.log(users);
-
+    resolve(true)
+    // console.log('users=',users)
   })
 }
