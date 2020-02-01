@@ -80,7 +80,7 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
         }else console.log('error reg');
       })
       res.redirect('/login')
-    } catch {
+    } catch (err) {
       res.redirect('/register')
   }
 })
