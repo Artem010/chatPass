@@ -30,9 +30,9 @@
 
         <b>Hi <%= name %></b>
         <a href="/logout"> LogOut</a>
-        <a class="online" href="#" data-container="body" data-toggle="popover" data-placement="top" data-content="">
+        <div class="online" data-container="body" data-toggle="popover" data-placement="top" data-content="">
           Online:<b></b>
-        </a>
+        </div>
       </div>
 
     </div>
@@ -42,16 +42,21 @@
 
 
   <script>
+
+
   $(function () {
     function scrollButtom() {
       $(".messeges").stop().animate({ scrollTop: $(".messeges")[0].scrollHeight}, 1000);
     }
 
+    // $('.online').on('click', (e)=>{
+      $('.online').popover({
+        container: 'body',
+        // trigger: 'focus'
+      })
+    // })
 
-    $('.online').popover({
-      container: 'body',
-      trigger: 'focus'
-    })
+
 
 
 

@@ -17,4 +17,6 @@
 }
 .online{
   float: right;
+  cursor: pointer;
+  color: blue;
 }
