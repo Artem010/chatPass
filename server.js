@@ -129,10 +129,14 @@ io.on('connection', socket => {
 
 
   socket.on('disconnect', () =>{
+    let usersOn = []
+    for (let i = 0; i < online.length; i++) {
+      usersOn.push(online[i].name)
+    }
     let user = online.find(user => user.socket == socket)
     if(user){
       online.splice(online.indexOf(user),1)
-      io.sockets.emit('connectDisconnectOnline', {name:user.name, value:'disconnected', online:online.length})
+      io.sockets.emit('connectDisconnectOnline', {name:user.name, value:'disconnected', online:usersOn})
       console.log('onlineDisconnectLength',online.length)
 
     }
