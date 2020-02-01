@@ -18,5 +18,7 @@
 .online{
   float: right;
   cursor: pointer;
-  color: blue;
+}
+.online span{
+  color: blue!important;
 }

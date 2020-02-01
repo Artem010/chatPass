@@ -6,6 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script type="text/javascript" src="https://unpkg.com/popper.js"></script>
+  <!-- <script type="text/javascript" src="https://unpkg.com/tooltip.js"></script> -->
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
   <script src="__dirname/../socket.io/socket.io.js"></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
@@ -30,9 +31,10 @@
 
         <b>Hi <%= name %></b>
         <a href="/logout"> LogOut</a>
-        <div class="online" data-container="body" data-toggle="popover" data-placement="top" data-content="">
-          Online:<b></b>
-        </div>
+        <a tabindex="0" class="online" role="button" data-container="body" data-trigger="focus" data-toggle="popover" data-placement="top" data-content="">
+          <span>Online:</span><b></b>
+        </a>
+
       </div>
 
     </div>
@@ -49,13 +51,10 @@
       $(".messeges").stop().animate({ scrollTop: $(".messeges")[0].scrollHeight}, 1000);
     }
 
-    // $('.online').on('click', (e)=>{
       $('.online').popover({
         container: 'body',
         trigger: 'focus'
       })
-    // })
-
 
 
 
